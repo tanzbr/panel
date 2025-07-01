@@ -103,6 +103,12 @@ class ServerCreationService
             throw $exception;
         }
 
+        // can't be included when creating the server due to server id being unknown at
+        // that point
+        Server::where('id', $server->id)->update([
+            'position' => $server->id,
+        ]);
+
         return $server;
     }
 

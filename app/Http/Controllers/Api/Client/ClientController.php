@@ -58,7 +58,7 @@ class ClientController extends ClientApiController
         } elseif ($type === 'owner') {
             $builder = $builder->where('servers.owner_id', $user->id);
         } else {
-            $builder = $builder->whereIn('servers.id', $user->accessibleServers()->pluck('id')->all());
+            $builder = $builder->whereIn('servers.id', $user->accessibleServers()->pluck('id')->all())->orderBy('position', 'asc');
         }
 
         $servers = $builder->paginate(min($request->query('per_page', 50), 100))->appends($request->query());
