@@ -96,6 +96,11 @@
                                 <i class="fa fa-globe"></i> <span>Locations</span>
                             </a>
                         </li>
+                        <li class="{{ ! starts_with(Route::currentRouteName(), 'admin.backup') ?: 'active' }}">
+                            <a href="{{ route('admin.backup') }}">
+                                <i class="fa fa-folder"></i> <span>Auto Backup</span>
+                            </a>
+                        </li>
                         <li class="{{ ! starts_with(Route::currentRouteName(), 'admin.nodes') ?: 'active' }}">
                             <a href="{{ route('admin.nodes') }}">
                                 <i class="fa fa-sitemap"></i> <span>Nodes</span>

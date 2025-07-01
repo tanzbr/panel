@@ -37,7 +37,7 @@ class BackupRepository extends EloquentRepository
      */
     public function getNonFailedBackups(Server $server): HasMany
     {
-        return $server->backups()->where(function ($query) {
+        return $server->backups()->where('is_automatic', '=', 0)->where(function ($query) {
             $query->whereNull('completed_at')
                 ->orWhere('is_successful', true);
         });

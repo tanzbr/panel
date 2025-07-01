@@ -226,3 +226,17 @@ Route::group(['prefix' => 'nests'], function () {
     Route::delete('/egg/{egg:id}', [Admin\Nests\EggController::class, 'destroy']);
     Route::delete('/egg/{egg:id}/variables/{variable:id}', [Admin\Nests\EggVariableController::class, 'destroy']);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Backup Controller Routes
+|--------------------------------------------------------------------------
+|
+| Endpoint: /admin/backup
+|
+*/
+Route::group(['prefix' => '/backup'], function () {
+    Route::get('/', [Admin\BackupController::class, 'index'])->name('admin.backup');
+
+    Route::post('/save', [Admin\BackupController::class, 'save'])->name('admin.backup.save');
+});

@@ -35,6 +35,9 @@ class Kernel extends ConsoleKernel
         $schedule->command(ProcessRunnableCommand::class)->everyMinute()->withoutOverlapping();
         $schedule->command(CleanServiceBackupFilesCommand::class)->daily();
 
+        $runAt = \Pterodactyl\Models\Setting::query()->where('key', '=', 'backup::auto::run')->first();
+        $schedule->command(\Pterodactyl\Console\Commands\Backups\AutomaticBackupCommand::class)->dailyAt(!$runAt ? '02:00' : $runAt->value);
+
         if (config('backups.prune_age')) {
             // Every 30 minutes, run the backup pruning command so that any abandoned backups can be deleted.
             $schedule->command(PruneOrphanedBackupsCommand::class)->everyThirtyMinutes();

@@ -10,6 +10,7 @@ import getServerBackups, { Context as ServerBackupContext } from '@/api/swr/getS
 import { ServerContext } from '@/state/server';
 import ServerContentBlock from '@/components/elements/ServerContentBlock';
 import Pagination from '@/components/elements/Pagination';
+import AutomaticBackups from '@/components/server/backups/automatic/AutomaticBackups';
 
 const BackupContainer = () => {
     const { page, setPage } = useContext(ServerBackupContext);
@@ -71,6 +72,9 @@ const BackupContainer = () => {
                     )}
                 </div>
             </Can>
+
+            <AutomaticBackups backups={backups.automaticBackups} />
+            
         </ServerContentBlock>
     );
 };

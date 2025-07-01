@@ -77,7 +77,7 @@ class InitiateBackupService
     {
         $limit = config('backups.throttles.limit');
         $period = config('backups.throttles.period');
-        if ($period > 0) {
+        if ($period > 0 && !isset($server->automatic_backup)) {
             $previous = $this->repository->getBackupsGeneratedDuringTimespan($server->id, $period);
             if ($previous->count() >= $limit) {
                 $message = sprintf('Only %d backups may be generated within a %d second span of time.', $limit, $period);
@@ -116,6 +116,7 @@ class InitiateBackupService
                 'ignored_files' => array_values($this->ignoredFiles ?? []),
                 'disk' => $this->backupManager->getDefaultAdapter(),
                 'is_locked' => $this->isLocked,
+                'is_automatic' => isset($server->automatic_backup) ? 1 : 0,
             ], true, true);
 
             $this->daemonBackupRepository->setServer($server)

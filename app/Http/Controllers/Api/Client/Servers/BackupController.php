@@ -49,10 +49,13 @@ class BackupController extends ClientApiController
 
         $limit = min($request->query('per_page') ?? 20, 50);
 
+        $automaticBackups = $this->fractal->collection($server->backups()->where('is_automatic', '=', 1)->orderBy('created_at', 'DESC')->get())->transformWith($this->getTransformer(BackupTransformer::class))->toArray()['data'];
+
         return $this->fractal->collection($server->backups()->paginate($limit))
             ->transformWith($this->getTransformer(BackupTransformer::class))
             ->addMeta([
                 'backup_count' => $this->repository->getNonFailedBackups($server)->count(),
+                'automatic_backups' => $automaticBackups,
             ])
             ->toArray();
     }
@@ -101,6 +104,10 @@ class BackupController extends ClientApiController
             throw new AuthorizationException();
         }
 
+        if ($backup->is_automatic != 0) {
+            throw new AuthorizationException('You can\'t handle this action on automatic backup.');
+        }
+
         $action = $backup->is_locked ? 'server:backup.unlock' : 'server:backup.lock';
 
         $backup->update(['is_locked' => !$backup->is_locked]);
@@ -138,6 +145,10 @@ class BackupController extends ClientApiController
     {
         if (!$request->user()->can(Permission::ACTION_BACKUP_DELETE, $server)) {
             throw new AuthorizationException();
+        }
+
+        if ($backup->is_automatic != 0 && $backup->is_successful) {
+            throw new AuthorizationException('You can\'t handle this action on automatic backup.');
         }
 
         $this->deleteBackupService->handle($backup);
