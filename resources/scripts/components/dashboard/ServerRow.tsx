@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEthernet, faHdd, faMemory, faMicrochip, faServer } from '@fortawesome/free-solid-svg-icons';
+import { faEthernet, faHdd, faMemory, faMicrochip, faServer, faClock } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { Server } from '@/api/server/getServer';
 import getServerResourceUsage, { ServerPowerState, ServerStats } from '@/api/server/getServerResourceUsage';
@@ -10,6 +10,7 @@ import GreyRowBox from '@/components/elements/GreyRowBox';
 import Spinner from '@/components/elements/Spinner';
 import styled from 'styled-components/macro';
 import isEqual from 'react-fast-compare';
+import UptimeDuration from '@/components/server/UptimeDuration';
 
 // Determines if the current value is in an alarm threshold so we can show it in red rather
 // than the more faded default style.
@@ -77,11 +78,12 @@ export default ({ server, className }: { server: Server; className?: string }) =
         };
     }, [isSuspended]);
 
-    const alarms = { cpu: false, memory: false, disk: false };
+    const alarms = { cpu: false, memory: false, disk: false, uptime: false };
     if (stats) {
         alarms.cpu = server.limits.cpu === 0 ? false : stats.cpuUsagePercent >= server.limits.cpu * 0.9;
         alarms.memory = isAlarmState(stats.memoryUsageInBytes, server.limits.memory);
         alarms.disk = server.limits.disk === 0 ? false : isAlarmState(stats.diskUsageInBytes, server.limits.disk);
+        alarms.uptime = stats.uptime === 0 ? false : stats.uptime < 7200000;
     }
 
     const diskLimit = server.limits.disk !== 0 ? bytesToString(mbToBytes(server.limits.disk)) : 'Unlimited';
@@ -140,6 +142,17 @@ export default ({ server, className }: { server: Server; className?: string }) =
                     )
                 ) : (
                     <React.Fragment>
+                        <div css={tw`flex-1 ml-4 sm:block hidden`}>
+                            <div css={tw`flex justify-center items-center`}className="serverRowDetails">
+                                <Icon icon={faClock} $alarm={alarms.uptime} />
+                                <IconDescription $alarm={alarms.uptime}>
+                                    Uptime
+                                </IconDescription>
+                            </div>
+                            <p css={tw`text-xs text-neutral-400 text-center mt-1`}>
+                                {stats.uptime > 0 ? <UptimeDuration uptime={stats.uptime / 1000} /> : 'Offline'}
+                            </p>
+                        </div>
                         <div css={tw`flex-1 ml-4 sm:block hidden`}>
                             <div css={tw`flex justify-center`}>
                                 <Icon icon={faMicrochip} $alarm={alarms.cpu} />
